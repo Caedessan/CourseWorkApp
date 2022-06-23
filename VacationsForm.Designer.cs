@@ -40,6 +40,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.grantedLabel = new System.Windows.Forms.Label();
             this.usedLabel = new System.Windows.Forms.Label();
+            this.exitButton = new System.Windows.Forms.Button();
             this.adminPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -148,12 +149,23 @@
             this.usedLabel.Size = new System.Drawing.Size(0, 15);
             this.usedLabel.TabIndex = 12;
             // 
+            // exitButton
+            // 
+            this.exitButton.Location = new System.Drawing.Point(414, 233);
+            this.exitButton.Name = "exitButton";
+            this.exitButton.Size = new System.Drawing.Size(75, 23);
+            this.exitButton.TabIndex = 8;
+            this.exitButton.Text = "Exit";
+            this.exitButton.UseVisualStyleBackColor = true;
+            this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
+            // 
             // VacationsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(501, 272);
+            this.Controls.Add(this.exitButton);
             this.Controls.Add(this.usedLabel);
             this.Controls.Add(this.grantedLabel);
             this.Controls.Add(this.label4);
@@ -186,5 +198,6 @@
         private Label label4;
         private Label grantedLabel;
         private Label usedLabel;
+        private Button exitButton;
     }
 }

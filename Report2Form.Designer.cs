@@ -111,7 +111,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.employeeBox);
             this.Name = "Report2Form";
-            this.Text = "Report2Form";
+            this.Text = "Employment Details";
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -92,7 +92,7 @@
             this.Controls.Add(this.departmentBox);
             this.Controls.Add(this.employeeList);
             this.Name = "Report1Form";
-            this.Text = "Report1Form";
+            this.Text = "Department workers list";
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -42,6 +42,7 @@ namespace CourseWorkApp
             DepartmentEmployee? department = _context.DepartmentEmployees
                 .Where(de => de.Employee.Id == employee.Id)
                 .Include(de => de.Department)
+                .OrderByDescending(de => de.Date)
                 .FirstOrDefault();
             if(department != null)
             {

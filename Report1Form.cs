@@ -38,9 +38,15 @@ namespace CourseWorkApp
             employeeList.Items.Clear();
             var DepEmployees = logic._context.DepartmentEmployees
                 .AsNoTracking()
-                .Where(de => de.Department.Name == departmentBox.Text)
+                .Where(de => de.Department.Name == departmentBox.Text &&
+                        de.Date == logic._context.DepartmentEmployees
+                            .AsNoTracking()
+                            .Where(dee => dee.Employee.Id == de.Employee.Id)
+                            .OrderByDescending(dee => dee.Date)
+                            .First()
+                            .Date
+                            )
                 .Select(de => de.Employee)
-                .Distinct()
                 .ToList();
             int amount = DepEmployees.Count();
             foreach (var employee in DepEmployees)

@@ -300,9 +300,15 @@ namespace CourseWorkApp
             abbBox.Text = department.Abbriviation;
             var DepEmployees = _logic._context.DepartmentEmployees
                 .AsNoTracking()
-                .Where(de => de.Department.Id == department.Id)
+                .Where(de => de.Department.Name == depNameBox.Text &&
+                        de.Date == _logic._context.DepartmentEmployees
+                            .AsNoTracking()
+                            .Where(dee => dee.Employee.Id == de.Employee.Id)
+                            .OrderByDescending(dee => dee.Date)
+                            .First()
+                            .Date
+                            )
                 .Select(de => de.Employee)
-                .Distinct()
                 .ToList();
             int amount = DepEmployees.Count();
             amountLabel.Text = amount.ToString();

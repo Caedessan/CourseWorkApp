@@ -183,9 +183,15 @@ namespace CourseWorkApp
                         .FirstOrDefault();
                     var depMax = logic._context.DepartmentEmployees
                         .AsNoTracking()
-                        .Where(de => de.Department.Name == departmentBox.Text)
+                        .Where(de => de.Department.Name == departmentBox.Text &&
+                                de.Date == logic._context.DepartmentEmployees
+                                    .AsNoTracking()
+                                    .Where(dee => dee.Employee.Id == de.Employee.Id)
+                                    .OrderByDescending(dee => dee.Date)
+                                    .First()
+                                    .Date
+                                    )
                         .Select(de => de.Employee)
-                        .Distinct()
                         .Count();
                     int passable = 1;
                     if (copy!= null)
@@ -266,9 +272,15 @@ namespace CourseWorkApp
                         .Count();
                 var depMax = logic._context.DepartmentEmployees
                     .AsNoTracking()
-                    .Where(de => de.Department.Name == departmentBox.Text)
+                    .Where(de => de.Department.Name == departmentBox.Text &&
+                            de.Date == logic._context.DepartmentEmployees
+                                .AsNoTracking()
+                                .Where(dee => dee.Employee.Id == de.Employee.Id)
+                                .OrderByDescending(dee => dee.Date)
+                                .First()
+                                .Date
+                                )
                     .Select(de => de.Employee)
-                    .Distinct()
                     .Count();
                 int passable = 1;
                 if (copy >=2)
@@ -277,7 +289,7 @@ namespace CourseWorkApp
                     passable = 0;
                 }
 
-                if (passable == 1&& depMax >= 20)
+                if (passable == 1 && depMax > 20)
                 {
                     MessageBox.Show("Too many employees in this department");
                     passable = 0;
@@ -332,8 +344,9 @@ namespace CourseWorkApp
                             logic._context.DepartmentEmployees.Add(depemp);
                         }
                     }
-                    logic._context.SaveChanges();
                 }
+
+                logic._context.SaveChanges();
                 _editingInProcess = 0;
                 editButton.Text = "Edit Data";
                 ToggleControl(0);
