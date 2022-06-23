@@ -51,14 +51,6 @@ namespace CourseWorkApp
             this.Database.ExecuteSqlRaw("EXEC AddAdminRights @Username", usernameParameter);
         }
 
-        public void RemoveAdminRights(string username)
-        {
-            var usernameParameter = new SqlParameter("@Username", System.Data.SqlDbType.NVarChar);
-            usernameParameter.Value = username;
-
-            this.Database.ExecuteSqlRaw("EXEC RemoveAdminRights @Username", usernameParameter);
-        }
-
         public void AddUser(string username, string password)
         {
             var usernameParameter = new SqlParameter("@Username", System.Data.SqlDbType.NVarChar);

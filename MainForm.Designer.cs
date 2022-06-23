@@ -324,6 +324,7 @@
             this.addUserButton.TabIndex = 3;
             this.addUserButton.Text = "Database users settings";
             this.addUserButton.UseVisualStyleBackColor = true;
+            this.addUserButton.Click += new System.EventHandler(this.addUserButton_Click);
             // 
             // editButton
             // 

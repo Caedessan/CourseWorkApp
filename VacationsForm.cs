@@ -58,6 +58,7 @@ namespace CourseWorkApp
                 grantedLabel.Text = grantedDays.ToString();
             }
 
+            usedLabel.ForeColor = Color.Black;
             if (logic.mode != "admin")
             {
                 adminPanel.Visible = false;
@@ -78,7 +79,7 @@ namespace CourseWorkApp
                 days += (vacation.DateEnd - vacation.DateStart).TotalDays;
                 vacationsList.Items.Add(vacation.DateStart.Date.ToString("dd/MM/yyyy") +" - "+vacation.DateEnd.Date.ToString("dd/MM/yyyy"));
             }
-            usedLabel.Text = days.ToString();
+            usedLabel.Text = Convert.ToInt32(days).ToString();
             if (days > grantedDays)
             {
                 usedLabel.ForeColor = Color.Red;
@@ -98,18 +99,77 @@ namespace CourseWorkApp
             }
             else
             {
-                var vac = new Vacation();
-                vac.DateStart = startPicker.Value;
-                vac.DateEnd = endPicker.Value;
-                vac.Employee = employee;
-                logic._context.Vacations.Add(vac);
+                var dep = logic._context.DepartmentEmployees
+                    .AsNoTracking()
+                    .Where(de => de.Employee.Id == employee.Id)
+                    .OrderByDescending(de => de.Date)
+                    .Include(de => de.Department)
+                    .First()
+                    .Department
+                    .Id;
+                var otherEmployees = logic._context.DepartmentEmployees
+                    .AsNoTracking()
+                    .Where(de => de.Department.Id == dep)
+                    .Include(de => de.Employee)
+                    ;
+
+                var thisVacations = logic._context.Vacations
+                    .AsNoTracking()
+                    .Include(v => v.Employee)
+                    .Where(v => v.Employee.Id == employee.Id &&
+                        !((v.DateStart <= endPicker.Value && startPicker.Value >= v.DateEnd) ||
+                        (startPicker.Value <= v.DateEnd && v.DateStart >= endPicker.Value)));
+                int passable = 1;
+                if (startPicker.Value> endPicker.Value)
+                {
+                    MessageBox.Show("Incorrect dates");
+
+                    passable = 0;
+                }
+                if (passable == 1 && thisVacations != null)
+                {
+                    if (thisVacations.Count() > 0)
+                    {
+                        MessageBox.Show("Employee vacations overlap");
+
+                        passable = 0;
+                    }
+                       
+                }
+                if (passable == 1 && otherEmployees != null)
+                {
+                    var othersVacations = logic._context.Vacations
+                        .AsNoTracking()
+                        .Include(v => v.Employee)
+                        .Where(v => otherEmployees
+                                .Any(oe => v.Employee.Id == oe.Employee.Id));
+                    var otherIntersect = othersVacations
+                        .AsNoTracking()
+                        .Include(v => v.Employee)
+                        .Where(v => (v.DateStart <= endPicker.Value && startPicker.Value >= v.DateEnd)
+                            );
+                    if (otherIntersect != null && otherIntersect.Count() >= 5)
+                    {
+                        MessageBox.Show("Too much employees from that department on a vacation already");
+                        passable = 0;
+                    }
+                }
+                if(passable == 1)
+                {
+                    var vac = new Vacation();
+                    vac.DateStart = startPicker.Value;
+                    vac.DateEnd = endPicker.Value;
+                    vac.Employee = employee;
+                    logic._context.Vacations.Add(vac);
+                }
                 logic._context.SaveChanges();
                 _adding = 0;
                 AddButton.Text = "Add";
                 UpdateVacationsList();
             }
         }
-
+        //||
+        //(startPicker.Value <= v.DateEnd && v.DateStart >= endPicker.Value)
         private void EditButton_Click(object sender, EventArgs e)
         {
             if (_editing == 0)
@@ -130,9 +190,61 @@ namespace CourseWorkApp
                                 v.DateStart.Date == startD &&
                                 v.DateEnd.Date == endD)
                             .First();
-                    vac.DateStart = startPicker.Value;
-                    vac.DateEnd = endPicker.Value;
-                    vac.Employee = employee;
+                    var dep = logic._context.DepartmentEmployees
+                    .AsNoTracking()
+                    .Where(de => de.Employee.Id == employee.Id)
+                    .OrderByDescending(de => de.Date)
+                    .Include(de => de.Department)
+                    .First()
+                    .Department
+                    .Id;
+                    var otherEmployees = logic._context.DepartmentEmployees
+                        .AsNoTracking()
+                        .Where(de => de.Department.Id == dep)
+                        .Include(de => de.Employee);
+                    var thisVacations = logic._context.Vacations
+                        .AsNoTracking()
+                        .Where(v => v.Employee.Id == employee.Id &&
+                            !((v.DateStart <= endPicker.Value && startPicker.Value >= v.DateEnd) ||
+                            (startPicker.Value <= v.DateEnd && v.DateStart >= endPicker.Value)));
+                    int passable = 1;
+                    if (startPicker.Value > endPicker.Value)
+                    {
+                        MessageBox.Show("Incorrect dates");
+
+                        passable = 0;
+                    }
+                    if (passable == 1 && thisVacations.Count() >= 2)
+                    {
+                        if (thisVacations.Count() > 0)
+                        {
+                            MessageBox.Show("Employee vacations overlap");
+
+                            passable = 0;
+                        }
+
+                    }
+                    if (passable == 1 && otherEmployees != null)
+                    {
+                        var othersVacations = logic._context.Vacations
+                            .AsNoTracking()
+                            .Include(v => v.Employee)
+                            .Where(v => otherEmployees
+                                    .Any(oe => v.Employee.Id == oe.Employee.Id) &&
+                                ((v.DateStart <= endPicker.Value && startPicker.Value >= v.DateEnd) ||
+                                (startPicker.Value <= v.DateEnd && v.DateStart >= endPicker.Value)));
+                        if (othersVacations != null && othersVacations.Count() >= 5)
+                        {
+                            MessageBox.Show("Too much employees from that department in a vaction already");
+                            passable = 0;
+                        }
+                    }
+                    if (passable == 1)
+                    {
+                        vac.DateStart = startPicker.Value;
+                        vac.DateEnd = endPicker.Value;
+                        vac.Employee = employee;
+                    }
                 }
 
                 logic._context.SaveChanges();
